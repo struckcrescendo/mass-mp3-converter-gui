@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MassMP3Converter</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif; /* Using Inter font as requested */
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 40px); /* Adjust for padding */
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 2em;
+        }
+        .tab-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            padding: 20px;
+        }
+        .tab-buttons {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        .tab-button {
+            padding: 12px 20px;
+            cursor: pointer;
+            border: none;
+            background-color: transparent;
+            font-size: 1.1em;
+            color: #555;
+            transition: color 0.3s ease, border-bottom 0.3s ease;
+        }
+        .tab-button.active {
+            color: #3498db;
+            border-bottom: 3px solid #3498db;
+            font-weight: bold;
+        }
+        .tab-content {
+            flex-grow: 1;
+            padding: 15px;
+            display: none; /* Hidden by default */
+            flex-direction: column;
+        }
+        .tab-content.active {
+            display: flex; /* Show active tab */
+        }
+        .input-group {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background-color: #f9f9f9;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #444;
+        }
+        .input-group input[type="text"] {
+            width: calc(100% - 100px); /* Adjust for button width */
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.95em;
+            box-sizing: border-box; /* Include padding in width */
+            margin-right: 10px;
+        }
+        .input-group button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: background-color 0.3s ease;
+        }
+        .input-group button:hover {
+            background-color: #0056b3;
+        }
+        .convert-button {
+            padding: 15px 25px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            margin-top: 20px;
+            align-self: center; /* Center the button in the column */
+        }
+        #folderConvertBtn {
+            background-color: #28a745; /* Green */
+        }
+        #folderConvertBtn:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+        #singleConvertBtn {
+            background-color: #17a2b8; /* Cyan */
+        }
+        #singleConvertBtn:hover {
+            background-color: #138496;
+            transform: translateY(-2px);
+        }
+        .convert-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .log-container {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .log-container h3 {
+            margin-top: 0;
+            color: #444;
+        }
+        #logArea {
+            flex-grow: 1;
+            border: 1px solid #eee;
+            padding: 10px;
+            background-color: #fff;
+            overflow-y: auto;
+            white-space: pre-wrap; /* Preserve whitespace and wrap long lines */
+            font-family: monospace;
+            font-size: 0.9em;
+            color: #555;
+            border-radius: 4px;
+        }
+    </style>
+    <!-- Google Fonts for Inter (Optional, but good practice if not system font) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <h1>MassMP3Converter</h1>
+
+    <div class="tab-container">
+        <div class="tab-buttons">
+            <button class="tab-button active" onclick="openTab(event, 'folderConvert')">Folder Conversion</button>
+            <button class="tab-button" onclick="openTab(event, 'singleFileConvert')">Single File Conversion</button>
+        </div>
+
+        <div id="folderConvert" class="tab-content active">
+            <div class="input-group">
+                <label for="folderSourcePath">Source Folder (contains files to convert):</label>
+                <input type="text" id="folderSourcePath" placeholder="e.g., /Users/YourName/Music/MyFlacs">
+                <button onclick="selectFolder('folderSourcePath')">Browse</button>
+            </div>
+
+            <div class="input-group">
+                <label for="inputFormat">Input File Format (e.g., flac, wav, ogg):</label>
+                <input type="text" id="inputFormat" value="flac" placeholder="e.g., flac">
+            </div>
+
+            <div class="input-group">
+                <label for="folderDestPath">Destination Folder (for converted MP3s):</label>
+                <input type="text" id="folderDestPath" placeholder="e.g., /Users/YourName/Music/MyMp3s">
+                <button onclick="selectFolder('folderDestPath')">Browse</button>
+            </div>
+
+            <button id="folderConvertBtn" class="convert-button" onclick="startFolderConversion()">Start Folder Conversion</button>
+        </div>
+
+        <div id="singleFileConvert" class="tab-content">
+            <div class="input-group">
+                <label for="singleSourcePath">Source File (the single file to convert):</label>
+                <input type="text" id="singleSourcePath" placeholder="e.g., /Users/YourName/Music/MySong.flac">
+                <button onclick="selectFile('singleSourcePath')">Browse</button>
+            </div>
+
+            <div class="input-group">
+                <label for="singleDestPath">Destination Folder (for the converted MP3):</label>
+                <input type="text" id="singleDestPath" placeholder="e.g., /Users/YourName/Music/ConvertedSongs">
+                <button onclick="selectFolder('singleDestPath')">Browse</button>
+            </div>
+
+            <button id="singleConvertBtn" class="convert-button" onclick="startSingleFileConversion()">Convert Single File</button>
+        </div>
+    </div>
+
+    <div class="log-container">
+        <h3>Conversion Status Log</h3>
+        <div id="logArea"></div>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>
